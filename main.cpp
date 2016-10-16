@@ -1,5 +1,4 @@
-
-#include "ancsservice.h"
+#include "ancs.h"
 
 
 int main(int argc, char *argv[])
@@ -8,7 +7,7 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
 
     QBluetoothLocalDevice localDevice;
-    ANCSService ancs;
+    ANCS ancs;
 
     if (localDevice.hostMode() == QBluetoothLocalDevice::HostPoweredOff)
     {
@@ -25,7 +24,7 @@ int main(int argc, char *argv[])
         a.exit(-1);
     });
 
-    QObject::connect(&ancs, &ANCSService::finished, &a, &QCoreApplication::exit);
+    QObject::connect(&ancs, &ANCS::finished, &a, &QCoreApplication::exit);
 
     ancs.start();
 

@@ -1,4 +1,4 @@
-#include "ancsservice.h"
+#include "ancs.h"
 
 static void processNotifiation(QLowEnergyCharacteristic characteristic, QByteArray data, QLowEnergyService* service) {
     if (characteristic.uuid() == ancsNotificationSourceCharUUid)
@@ -12,18 +12,18 @@ static void processNotifiation(QLowEnergyCharacteristic characteristic, QByteArr
         QTextStream(stdout) << "\tCategoryCount: " << static_cast<unsigned>(data[3]) << endl;
 
         QByteArray dataRequest;
-        dataRequest.append(ANCSService::CommandID::GetNotificationAttributes);
+        dataRequest.append(ANCS::CommandID::GetNotificationAttributes);
         dataRequest.append(uid);
-        dataRequest.append(ANCSService::NotificationAttributeID::AppIdentifier);
-        dataRequest.append(ANCSService::NotificationAttributeID::Title);
+        dataRequest.append(ANCS::NotificationAttributeID::AppIdentifier);
+        dataRequest.append(ANCS::NotificationAttributeID::Title);
         dataRequest.append(2, 0xFF); // Max Size (0xFFFF)
-        dataRequest.append(ANCSService::NotificationAttributeID::Subtitle);
+        dataRequest.append(ANCS::NotificationAttributeID::Subtitle);
         dataRequest.append(2, 0xFF); // Max Size (0xFFFF)
-        dataRequest.append(ANCSService::NotificationAttributeID::Message);
+        dataRequest.append(ANCS::NotificationAttributeID::Message);
         dataRequest.append(2, 0xFF); // Max Size (0xFFFF)
-        dataRequest.append(ANCSService::NotificationAttributeID::Date);
-        dataRequest.append(ANCSService::NotificationAttributeID::PositiveActionLabel);
-        dataRequest.append(ANCSService::NotificationAttributeID::NegativeActionLabel);
+        dataRequest.append(ANCS::NotificationAttributeID::Date);
+        dataRequest.append(ANCS::NotificationAttributeID::PositiveActionLabel);
+        dataRequest.append(ANCS::NotificationAttributeID::NegativeActionLabel);
 
         service->writeCharacteristic(service->characteristic(ancsControlPointCharUUid), dataRequest);
     }
@@ -51,12 +51,12 @@ static void processNotifiation(QLowEnergyCharacteristic characteristic, QByteArr
     }
 }
 
-ANCSService::ANCSService(QObject *parent) : QObject(parent), ancsService(nullptr), leController(nullptr)
+ANCS::ANCS(QObject *parent) : QObject(parent), ancsService(nullptr), leController(nullptr)
 {
 }
 
 
-void ANCSService::start()
+void ANCS::start()
 {
     leController = QLowEnergyController::createPeripheral();
     if (!leController)
@@ -68,17 +68,17 @@ void ANCSService::start()
         leController,
         static_cast<void(QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
         this,
-        &ANCSService::leError
+        &ANCS::leError
     );
 
-    QObject::connect(leController, &QLowEnergyController::disconnected, this, &ANCSService::onDisconnected);
-    QObject::connect(leController, &QLowEnergyController::connected, this, &ANCSService::onConnected);
+    QObject::connect(leController, &QLowEnergyController::disconnected, this, &ANCS::onDisconnected);
+    QObject::connect(leController, &QLowEnergyController::connected, this, &ANCS::onConnected);
 
-    QObject::connect(leController, &QLowEnergyController::serviceDiscovered, this, &ANCSService::onServiceDiscovered);
+    QObject::connect(leController, &QLowEnergyController::serviceDiscovered, this, &ANCS::onServiceDiscovered);
     startAdvertising();
 }
 
-void ANCSService::stop()
+void ANCS::stop()
 {
     if (ancsService)
     {
@@ -91,7 +91,7 @@ void ANCSService::stop()
     }
 }
 
-void ANCSService::startAdvertising()
+void ANCS::startAdvertising()
 {
     QLowEnergyAdvertisingData advertisingData;
     QLowEnergyAdvertisingParameters params;
@@ -105,24 +105,24 @@ void ANCSService::startAdvertising()
     leController->startAdvertising(params, advertisingData, advertisingData);
 }
 
-void ANCSService::leError(QLowEnergyController::Error error)
+void ANCS::leError(QLowEnergyController::Error error)
 {
     stop();
     emit finished(-1);
 }
 
-void ANCSService::onServiceDiscovered(const QBluetoothUuid &newService)
+void ANCS::onServiceDiscovered(const QBluetoothUuid &newService)
 {
     // Only deal with ancsServiceUuid
     if (newService != ancsServiceUuid) return;
 
     Q_ASSERT(ancsService == nullptr);
     ancsService = leController->createServiceObject(newService);
-    QObject::connect(ancsService, &QLowEnergyService::stateChanged, this, &ANCSService::onServiceStateChanged);
+    QObject::connect(ancsService, &QLowEnergyService::stateChanged, this, &ANCS::onServiceStateChanged);
     ancsService->discoverDetails();
 }
 
-void ANCSService::onServiceStateChanged(QLowEnergyService::ServiceState newState)
+void ANCS::onServiceStateChanged(QLowEnergyService::ServiceState newState)
 {
     Q_ASSERT(ancsService == nullptr);
     // @TODO: Deal with other states
@@ -144,13 +144,13 @@ void ANCSService::onServiceStateChanged(QLowEnergyService::ServiceState newState
     }
 }
 
-void ANCSService::onDisconnected()
+void ANCS::onDisconnected()
 {
     stop();
     start();
 }
 
-void ANCSService::onConnected()
+void ANCS::onConnected()
 {
     // Stop advertising
     leController->stopAdvertising();

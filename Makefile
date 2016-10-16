@@ -49,10 +49,10 @@ OBJECTS_DIR   = ./
 ####### Files
 
 SOURCES       = main.cpp \
-		ancsservice.cpp moc_ancsservice.cpp
+		ancs.cpp moc_ancs.cpp
 OBJECTS       = main.o \
-		ancsservice.o \
-		moc_ancsservice.o
+		ancs.o \
+		moc_ancs.o
 DIST          = /usr/lib/qt/mkspecs/features/spec_pre.prf \
 		/usr/lib/qt/mkspecs/common/unix.conf \
 		/usr/lib/qt/mkspecs/common/linux.conf \
@@ -165,8 +165,8 @@ DIST          = /usr/lib/qt/mkspecs/features/spec_pre.prf \
 		/usr/lib/qt/mkspecs/features/exceptions.prf \
 		/usr/lib/qt/mkspecs/features/yacc.prf \
 		/usr/lib/qt/mkspecs/features/lex.prf \
-		DesktopANCS.pro ancsservice.h main.cpp \
-		ancsservice.cpp
+		DesktopANCS.pro ancs.h main.cpp \
+		ancs.cpp
 QMAKE_TARGET  = DesktopANCS
 DESTDIR       = 
 TARGET        = DesktopANCS
@@ -423,8 +423,8 @@ dist: distdir FORCE
 distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
-	$(COPY_FILE) --parents ancsservice.h $(DISTDIR)/
-	$(COPY_FILE) --parents main.cpp ancsservice.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents ancs.h $(DISTDIR)/
+	$(COPY_FILE) --parents main.cpp ancs.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -450,12 +450,12 @@ benchmark: first
 
 compiler_rcc_make_all:
 compiler_rcc_clean:
-compiler_moc_header_make_all: moc_ancsservice.cpp
+compiler_moc_header_make_all: moc_ancs.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_ancsservice.cpp
-moc_ancsservice.cpp: ancsservice.h \
+	-$(DEL_FILE) moc_ancs.cpp
+moc_ancs.cpp: ancs.h \
 		/usr/bin/moc
-	/usr/bin/moc $(DEFINES) -I/usr/lib/qt/mkspecs/linux-g++ -I/home/matt/dev/DesktopANCS -I/home/matt/dev/DesktopANCS -I/usr/include/qt -I/usr/include/qt/QtBluetooth -I/usr/include/qt/QtCore -I/usr/include/c++/6.2.1 -I/usr/include/c++/6.2.1/x86_64-pc-linux-gnu -I/usr/include/c++/6.2.1/backward -I/usr/lib/gcc/x86_64-pc-linux-gnu/6.2.1/include -I/usr/local/include -I/usr/lib/gcc/x86_64-pc-linux-gnu/6.2.1/include-fixed -I/usr/include ancsservice.h -o moc_ancsservice.cpp
+	/usr/bin/moc $(DEFINES) -I/usr/lib/qt/mkspecs/linux-g++ -I/home/matt/dev/DesktopANCS -I/home/matt/dev/DesktopANCS -I/usr/include/qt -I/usr/include/qt/QtBluetooth -I/usr/include/qt/QtCore -I/usr/include/c++/6.2.1 -I/usr/include/c++/6.2.1/x86_64-pc-linux-gnu -I/usr/include/c++/6.2.1/backward -I/usr/lib/gcc/x86_64-pc-linux-gnu/6.2.1/include -I/usr/local/include -I/usr/lib/gcc/x86_64-pc-linux-gnu/6.2.1/include-fixed -I/usr/include ancs.h -o moc_ancs.cpp
 
 compiler_moc_source_make_all:
 compiler_moc_source_clean:
@@ -469,14 +469,14 @@ compiler_clean: compiler_moc_header_clean
 
 ####### Compile
 
-main.o: main.cpp ancsservice.h
+main.o: main.cpp ancs.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
 
-ancsservice.o: ancsservice.cpp ancsservice.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ancsservice.o ancsservice.cpp
+ancs.o: ancs.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ancs.o ancs.cpp
 
-moc_ancsservice.o: moc_ancsservice.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_ancsservice.o moc_ancsservice.cpp
+moc_ancs.o: moc_ancs.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_ancs.o moc_ancs.cpp
 
 ####### Install
 

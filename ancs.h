@@ -18,7 +18,7 @@ const QBluetoothUuid ancsNotificationSourceCharUUid = QBluetoothUuid(QString("9F
 const QBluetoothUuid ancsDataSourceCharUUid = QBluetoothUuid(QString("22EAC6E9-24D6-4BB5-BE44-B36ACE7C7BFB"));
 const QBluetoothUuid ancsControlPointCharUUid = QBluetoothUuid(QString("69D1D8F3-45E1-49A8-9821-9BBDFDAAD9D9 "));
 
-class ANCSService : public QObject
+class ANCS : public QObject
 {
     Q_OBJECT
 public:
@@ -77,7 +77,7 @@ public:
         const static uint8_t DisplayName = 0;
     };
 
-    explicit ANCSService(QObject *parent = 0);
+    explicit ANCS(QObject *parent = 0);
 
 signals:
     void finished(int error);

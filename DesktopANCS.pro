@@ -15,7 +15,7 @@ INCLUDEPATH += .
 
 # Input
 SOURCES += main.cpp \
-    ancsservice.cpp
+    ancs.cpp
 
 HEADERS += \
-    ancsservice.h
+    ancs.h
