@@ -2,8 +2,21 @@
 #define ANCSSERVICE_H
 
 #include <QObject>
-#include <QHash>
 #include <QString>
+#include <QCoreApplication>
+#include <QLowEnergyAdvertisingData>
+#include <QLowEnergyAdvertisingParameters>
+#include <QTextStream>
+#include <QScopedPointer>
+#include <QLowEnergyController>
+#include <QBluetoothLocalDevice>
+#include <QLowEnergyServiceData>
+#include <QLoggingCategory>
+
+const QBluetoothUuid ancsServiceUuid = QBluetoothUuid(QString("{7905F431-B5CE-4E99-A40F-4B1E122D00D0}"));
+const QBluetoothUuid ancsNotificationSourceCharUUid = QBluetoothUuid(QString("9FBF120D-6301-42D9-8C58-25E699A21DBD"));
+const QBluetoothUuid ancsDataSourceCharUUid = QBluetoothUuid(QString("22EAC6E9-24D6-4BB5-BE44-B36ACE7C7BFB"));
+const QBluetoothUuid ancsControlPointCharUUid = QBluetoothUuid(QString("69D1D8F3-45E1-49A8-9821-9BBDFDAAD9D9 "));
 
 class ANCSService : public QObject
 {
@@ -67,11 +80,24 @@ public:
     explicit ANCSService(QObject *parent = 0);
 
 signals:
+    void finished(int error);
 
 public slots:
+    void start();
+    void stop();
 
 private:
-    QHash<QString,QString> appInfo;
+    QLowEnergyService* ancsService;
+    QLowEnergyController* leController = QLowEnergyController::createPeripheral();
+
+    void startAdvertising();
+
+private slots:
+    void leError(QLowEnergyController::Error error);
+    void onServiceDiscovered(const QBluetoothUuid &newService);
+    void onServiceStateChanged(QLowEnergyService::ServiceState newState);
+    void onDisconnected();
+    void onConnected();
 
 };
 
