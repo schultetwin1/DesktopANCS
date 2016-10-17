@@ -1,53 +1,34 @@
 #include "ancs.h"
 
-static void processNotifiation(QLowEnergyCharacteristic characteristic, QByteArray data, QLowEnergyService* service) {
+void ANCS::onANCSCharacteristicChanged(QLowEnergyCharacteristic characteristic, QByteArray data) {
+    Q_ASSERT(ancsService);
+
     if (characteristic.uuid() == ancsNotificationSourceCharUUid)
     {
         QByteArray uid = data.right(4);
-        QTextStream(stdout) << "Received Notification: " << data.toHex() << "(" << data.size() << ")" << endl;
-        QTextStream(stdout) << "\tUID: " << uid.toHex() << endl;
-        QTextStream(stdout) << "\tEventID: " << static_cast<unsigned>(data[0]) << endl;
-        QTextStream(stdout) << "\tEventFlags: 0x" << hex <<  static_cast<unsigned>(data[1]) << endl;
-        QTextStream(stdout) << "\tCategoryID: " << static_cast<unsigned>(data[2]) << endl;
-        QTextStream(stdout) << "\tCategoryCount: " << static_cast<unsigned>(data[3]) << endl;
 
         QByteArray dataRequest;
-        dataRequest.append(ANCS::CommandID::GetNotificationAttributes);
+        dataRequest.append(ANCSNotification::CommandID::GetNotificationAttributes);
         dataRequest.append(uid);
-        dataRequest.append(ANCS::NotificationAttributeID::AppIdentifier);
-        dataRequest.append(ANCS::NotificationAttributeID::Title);
+        dataRequest.append(ANCSNotification::NotificationAttributeID::AppIdentifier);
+        dataRequest.append(ANCSNotification::NotificationAttributeID::Title);
         dataRequest.append(2, 0xFF); // Max Size (0xFFFF)
-        dataRequest.append(ANCS::NotificationAttributeID::Subtitle);
+        dataRequest.append(ANCSNotification::NotificationAttributeID::Subtitle);
         dataRequest.append(2, 0xFF); // Max Size (0xFFFF)
-        dataRequest.append(ANCS::NotificationAttributeID::Message);
+        dataRequest.append(ANCSNotification::NotificationAttributeID::Message);
         dataRequest.append(2, 0xFF); // Max Size (0xFFFF)
-        dataRequest.append(ANCS::NotificationAttributeID::Date);
-        dataRequest.append(ANCS::NotificationAttributeID::PositiveActionLabel);
-        dataRequest.append(ANCS::NotificationAttributeID::NegativeActionLabel);
+        dataRequest.append(ANCSNotification::NotificationAttributeID::Date);
+        dataRequest.append(ANCSNotification::NotificationAttributeID::PositiveActionLabel);
+        dataRequest.append(ANCSNotification::NotificationAttributeID::NegativeActionLabel);
 
-        service->writeCharacteristic(service->characteristic(ancsControlPointCharUUid), dataRequest);
+        ancsService->writeCharacteristic(ancsService->characteristic(ancsControlPointCharUUid), dataRequest);
     }
     else if (characteristic.uuid() == ancsDataSourceCharUUid)
     {
-        QTextStream(stdout) << "Received Data Source: " << data.toHex() << "(" << data.size() << ")" << endl;
-        QByteArray uid = data.mid(1, 4);
-        QTextStream(stdout) << "\tUID: " << uid.toHex() << endl;
-        data.remove(0, 5);
-        system("notify-send 'Hello world!' 'This is an example notification.' --icon=dialog-information");
-        while (!data.isEmpty())
-        {
-            uint8_t attrID = data[0];
-            QTextStream(stdout) << "\tAttributeID: " << static_cast<unsigned>(attrID) << endl;
-            data.remove(0,1);
-
-            uint16_t attrLength = data[0] | (data[1] << 8);
-            data.remove(0,2);
-
-            QByteArray attr = data.left(attrLength);
-            QTextStream(stdout) << "\tData: " << attr.toStdString().c_str() << endl;
-            data.remove(0, attrLength);
-
-        }
+        ANCSNotification notification;
+        notification.UpdateData(data);
+        notifications.append(notification);
+        emit newNotification(notifications[notifications.size() - 1]);
     }
 }
 
@@ -108,6 +89,7 @@ void ANCS::startAdvertising()
 void ANCS::leError(QLowEnergyController::Error error)
 {
     stop();
+    QTextStream(stderr) << leController->errorString() << endl;
     emit finished(-1);
 }
 
@@ -128,9 +110,7 @@ void ANCS::onServiceStateChanged(QLowEnergyService::ServiceState newState)
     // @TODO: Deal with other states
     if (newState == QLowEnergyService::ServiceDiscovered)
     {
-        QObject::connect(ancsService, &QLowEnergyService::characteristicChanged,[&](QLowEnergyCharacteristic characteristic, QByteArray data){
-            processNotifiation(characteristic, data, ancsService);
-        });
+        QObject::connect(ancsService, &QLowEnergyService::characteristicChanged, this, &ANCS::onANCSCharacteristicChanged);
 
         // enable notifications
         QLowEnergyDescriptor notification;

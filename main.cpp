@@ -1,3 +1,5 @@
+#include <QTimer>
+
 #include "ancs.h"
 
 
@@ -26,7 +28,14 @@ int main(int argc, char *argv[])
 
     QObject::connect(&ancs, &ANCS::finished, &a, &QCoreApplication::exit);
 
-    ancs.start();
+    QObject::connect(&ancs, &ANCS::newNotification, [&](const ANCSNotification& notification) {
+        if (notification.getAppIdentifier().contains("SMS"))
+        {
+            system(QString("notify-send '" + notification.getTitle() + "' '" +  notification.getMessage() + "'").toStdString().c_str());
+        }
+    });
+
+    QTimer::singleShot(0, &ancs, &ANCS::start);
 
 
     return a.exec();

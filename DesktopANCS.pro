@@ -15,7 +15,9 @@ INCLUDEPATH += .
 
 # Input
 SOURCES += main.cpp \
-    ancs.cpp
+    ancs.cpp \
+    ancsnotification.cpp
 
 HEADERS += \
-    ancs.h
+    ancs.h \
+    ancsnotification.h
