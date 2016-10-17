@@ -457,7 +457,8 @@ compiler_rcc_clean:
 compiler_moc_header_make_all: moc_ancs.cpp
 compiler_moc_header_clean:
 	-$(DEL_FILE) moc_ancs.cpp
-moc_ancs.cpp: ancs.h \
+moc_ancs.cpp: ancsnotification.h \
+		ancs.h \
 		/usr/bin/moc
 	/usr/bin/moc $(DEFINES) -I/usr/lib/qt/mkspecs/linux-g++ -I/home/matt/dev/DesktopANCS -I/home/matt/dev/DesktopANCS -I/usr/include/qt -I/usr/include/qt/QtBluetooth -I/usr/include/qt/QtCore -I/usr/include/c++/6.2.1 -I/usr/include/c++/6.2.1/x86_64-pc-linux-gnu -I/usr/include/c++/6.2.1/backward -I/usr/lib/gcc/x86_64-pc-linux-gnu/6.2.1/include -I/usr/local/include -I/usr/lib/gcc/x86_64-pc-linux-gnu/6.2.1/include-fixed -I/usr/include ancs.h -o moc_ancs.cpp
 
@@ -473,15 +474,15 @@ compiler_clean: compiler_moc_header_clean
 
 ####### Compile
 
-main.o: main.cpp ancs.h
+main.o: main.cpp ancs.h \
+		ancsnotification.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
 
 ancs.o: ancs.cpp ancs.h \
 		ancsnotification.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ancs.o ancs.cpp
 
-ancsnotification.o: ancsnotification.cpp ancsnotification.h \
-		ancs.h
+ancsnotification.o: ancsnotification.cpp ancsnotification.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ancsnotification.o ancsnotification.cpp
 
 moc_ancs.o: moc_ancs.cpp 

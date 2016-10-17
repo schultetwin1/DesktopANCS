@@ -89,7 +89,7 @@ void ANCS::startAdvertising()
 void ANCS::leError(QLowEnergyController::Error error)
 {
     stop();
-    QTextStream(stderr) << leController->errorString() << endl;
+    QTextStream(stderr) << "LEControllerError: " << leController->errorString() << endl;
     emit finished(-1);
 }
 
