@@ -30,11 +30,22 @@ int main(int argc, char *argv[])
     QObject::connect(&ancs, &ANCS::finished, &a, &QCoreApplication::exit);
 
     QObject::connect(&ancs, &ANCS::newNotification, [&](const ANCSNotification& notification) {
+        QTextStream(stdout) << notification.getAppIdentifier() << endl;
         if (notification.getAppIdentifier().contains("SMS"))
         {
             QStringList args;
             args.append(notification.getTitle());
             args.append(notification.getMessage());
+            args.append("--icon=mail-unread");
+            QProcess::execute("notify-send", args);
+        }
+
+        if (notification.getAppIdentifier().contains("mobilephone"))
+        {
+            QStringList args;
+            args.append(notification.getTitle());
+            args.append("Incoming call...");
+            args.append("--icon=phone");
             QProcess::execute("notify-send", args);
         }
     });
