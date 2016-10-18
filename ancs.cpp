@@ -65,12 +65,15 @@ void ANCS::stop()
 {
     if (ancsService)
     {
-        delete ancsService;
+        ancsService->deleteLater();
+        ancsService = nullptr;
     }
     if (leController)
     {
         leController->stopAdvertising();
         leController->disconnectFromDevice();
+        leController->disconnect();
+        leController = nullptr;
     }
 }
 
@@ -90,8 +93,13 @@ void ANCS::startAdvertising()
 
 void ANCS::leError(QLowEnergyController::Error error)
 {
-    stop();
     QTextStream(stderr) << "LEControllerError: " << leController->errorString() << endl;
+    if (ancsService)
+    {
+        ancsService->disconnect();
+    }
+    leController->disconnect();
+    stop();
     emit finished(-1);
 }
 
@@ -128,8 +136,14 @@ void ANCS::onServiceStateChanged(QLowEnergyService::ServiceState newState)
 
 void ANCS::onDisconnected()
 {
+    if (!leController) return;
+
+    QLowEnergyController::Error error = leController->error();
     stop();
-    start();
+    if (error == QLowEnergyController::NoError)
+    {
+        start();
+    }
 }
 
 void ANCS::onConnected()

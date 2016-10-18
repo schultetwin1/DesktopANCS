@@ -27,6 +27,16 @@ int main(int argc, char *argv[])
         a.exit(-1);
     });
 
+    QObject::connect(&localDevice, &QBluetoothLocalDevice::hostModeStateChanged, [&](QBluetoothLocalDevice::HostMode state){
+       if (state == QBluetoothLocalDevice::HostPoweredOff)
+       {
+           QTextStream(stdout) << "Bluetooth Radio turned off. Shutting down" << endl;
+           localDevice.disconnect();
+           ancs.stop();
+           a.exit(-1);
+       }
+    });
+
     QObject::connect(&ancs, &ANCS::finished, &a, &QCoreApplication::exit);
 
     QObject::connect(&ancs, &ANCS::newNotification, [&](const ANCSNotification& notification) {
