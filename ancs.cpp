@@ -42,7 +42,9 @@ void ANCS::start()
     leController = QLowEnergyController::createPeripheral();
     if (!leController)
     {
-        // @TODO: Deal with failed QLowEnergyController create peripheral
+        QTextStream(stderr) << "Unable to createPeripheral" << endl;
+        emit finished(-1);
+        return;
     }
 
     QObject::connect(
