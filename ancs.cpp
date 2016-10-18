@@ -106,7 +106,7 @@ void ANCS::onServiceDiscovered(const QBluetoothUuid &newService)
 
 void ANCS::onServiceStateChanged(QLowEnergyService::ServiceState newState)
 {
-    Q_ASSERT(ancsService == nullptr);
+    Q_ASSERT(ancsService != nullptr);
     // @TODO: Deal with other states
     if (newState == QLowEnergyService::ServiceDiscovered)
     {
