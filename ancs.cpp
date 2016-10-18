@@ -72,7 +72,6 @@ void ANCS::stop()
     {
         leController->stopAdvertising();
         leController->disconnectFromDevice();
-        leController->disconnect();
         leController = nullptr;
     }
 }
@@ -94,11 +93,6 @@ void ANCS::startAdvertising()
 void ANCS::leError(QLowEnergyController::Error error)
 {
     QTextStream(stderr) << "LEControllerError: " << leController->errorString() << endl;
-    if (ancsService)
-    {
-        ancsService->disconnect();
-    }
-    leController->disconnect();
     stop();
     emit finished(-1);
 }

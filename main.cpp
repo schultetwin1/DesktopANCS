@@ -31,7 +31,6 @@ int main(int argc, char *argv[])
        if (state == QBluetoothLocalDevice::HostPoweredOff)
        {
            QTextStream(stdout) << "Bluetooth Radio turned off. Shutting down" << endl;
-           localDevice.disconnect();
            ancs.stop();
            a.exit(-1);
        }
