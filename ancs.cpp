@@ -1,7 +1,9 @@
 #include "ancs.h"
 
 void ANCS::onANCSCharacteristicChanged(QLowEnergyCharacteristic characteristic, QByteArray data) {
-    Q_ASSERT(ancsService);
+    if (!ancsService) return;
+
+    Q_ASSERT(leController);
 
     if (characteristic.uuid() == ancsNotificationSourceCharUUid)
     {
@@ -32,20 +34,9 @@ void ANCS::onANCSCharacteristicChanged(QLowEnergyCharacteristic characteristic, 
     }
 }
 
-ANCS::ANCS(QObject *parent) : QObject(parent), ancsService(nullptr), leController(nullptr)
+ANCS::ANCS(QObject *parent) : QObject(parent), ancsService(nullptr)
 {
-}
-
-
-void ANCS::start()
-{
-    leController = QLowEnergyController::createPeripheral();
-    if (!leController)
-    {
-        QTextStream(stderr) << "Unable to createPeripheral" << endl;
-        emit finished(-1);
-        return;
-    }
+    leController = QLowEnergyController::createPeripheral(this);
 
     QObject::connect(
         leController,
@@ -58,26 +49,34 @@ void ANCS::start()
     QObject::connect(leController, &QLowEnergyController::connected, this, &ANCS::onConnected);
 
     QObject::connect(leController, &QLowEnergyController::serviceDiscovered, this, &ANCS::onServiceDiscovered);
+}
+
+ANCS::~ANCS()
+{
+    stop();
+}
+
+void ANCS::start()
+{
     startAdvertising();
 }
 
 void ANCS::stop()
 {
+    leController->stopAdvertising();
+    leController->disconnectFromDevice();
+
     if (ancsService)
     {
-        ancsService->deleteLater();
+        delete ancsService;
         ancsService = nullptr;
     }
-    if (leController)
-    {
-        leController->stopAdvertising();
-        leController->disconnectFromDevice();
-        leController = nullptr;
-    }
+    Q_ASSERT(!ancsService);
 }
 
 void ANCS::startAdvertising()
 {
+    Q_ASSERT(leController);
     QLowEnergyAdvertisingData advertisingData;
     QLowEnergyAdvertisingParameters params;
     // @TODO: Add solicited UUIDs in Qt Bluetooth library
@@ -92,6 +91,7 @@ void ANCS::startAdvertising()
 
 void ANCS::leError(QLowEnergyController::Error error)
 {
+    Q_ASSERT(leController);
     QTextStream(stderr) << "LEControllerError: " << leController->errorString() << endl;
     stop();
     emit finished(-1);
@@ -110,7 +110,15 @@ void ANCS::onServiceDiscovered(const QBluetoothUuid &newService)
 
 void ANCS::onServiceStateChanged(QLowEnergyService::ServiceState newState)
 {
-    Q_ASSERT(ancsService != nullptr);
+    if (newState == QLowEnergyService::InvalidService)
+    {
+        if (ancsService) delete ancsService;
+        ancsService = nullptr;
+        return;
+    }
+    Q_ASSERT(ancsService);
+    Q_ASSERT(leController);
+
     // @TODO: Deal with other states
     if (newState == QLowEnergyService::ServiceDiscovered)
     {
@@ -130,18 +138,20 @@ void ANCS::onServiceStateChanged(QLowEnergyService::ServiceState newState)
 
 void ANCS::onDisconnected()
 {
-    if (!leController) return;
+    Q_ASSERT(leController);
 
     QLowEnergyController::Error error = leController->error();
     stop();
     if (error == QLowEnergyController::NoError)
     {
+        leController->switchRole();
         start();
     }
 }
 
 void ANCS::onConnected()
 {
+    Q_ASSERT(leController);
     // Stop advertising
     leController->stopAdvertising();
     // @TODO: Fix this hack in QT Bluetooth lib

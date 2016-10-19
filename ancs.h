@@ -23,8 +23,10 @@ const QBluetoothUuid ancsControlPointCharUUid = QBluetoothUuid(QString("69D1D8F3
 class ANCS : public QObject
 {
     Q_OBJECT
+
 public:
     explicit ANCS(QObject *parent = 0);
+    ~ANCS();
 
 signals:
     void finished(int error);
