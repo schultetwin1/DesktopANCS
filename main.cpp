@@ -28,12 +28,12 @@ int main(int argc, char *argv[])
     });
 
     QObject::connect(&localDevice, &QBluetoothLocalDevice::hostModeStateChanged, [&](QBluetoothLocalDevice::HostMode state){
-       if (state == QBluetoothLocalDevice::HostPoweredOff)
-       {
-           QTextStream(stdout) << "Bluetooth Radio turned off. Shutting down" << endl;
-           ancs.stop();
-           a.exit(-1);
-       }
+        if (state == QBluetoothLocalDevice::HostPoweredOff)
+        {
+            QTextStream(stdout) << "Bluetooth Radio turned off." << endl;
+            ancs.stop();
+            a.exit(-1);
+        }
     });
 
     QObject::connect(&ancs, &ANCS::finished, &a, &QCoreApplication::exit);
