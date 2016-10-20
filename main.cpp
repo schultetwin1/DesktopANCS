@@ -39,7 +39,6 @@ int main(int argc, char *argv[])
     QObject::connect(&ancs, &ANCS::finished, &a, &QCoreApplication::exit);
 
     QObject::connect(&ancs, &ANCS::newNotification, [&](const ANCSNotification& notification) {
-        QTextStream(stdout) << notification.getAppIdentifier() << endl;
         if (notification.getAppIdentifier().contains("SMS"))
         {
             QStringList args;

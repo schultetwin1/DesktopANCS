@@ -112,11 +112,12 @@ void ANCS::onServiceStateChanged(QLowEnergyService::ServiceState newState)
 {
     if (newState == QLowEnergyService::InvalidService)
     {
-        if (ancsService) delete ancsService;
+        Q_ASSERT(ancsService);
+        delete ancsService;
         ancsService = nullptr;
         return;
     }
-    Q_ASSERT(ancsService);
+
     Q_ASSERT(leController);
 
     // @TODO: Deal with other states
@@ -139,23 +140,20 @@ void ANCS::onServiceStateChanged(QLowEnergyService::ServiceState newState)
 void ANCS::onDisconnected()
 {
     Q_ASSERT(leController);
+    // If disconnect happened due to error, stop will have already occured
+    if (leController->error() != QLowEnergyController::NoError) return;
 
-    QLowEnergyController::Error error = leController->error();
     stop();
-    if (error == QLowEnergyController::NoError)
-    {
-        leController->switchRole();
-        start();
-    }
+    leController->switchRole();
+    start();
 }
 
 void ANCS::onConnected()
 {
     Q_ASSERT(leController);
-    // Stop advertising
+
     leController->stopAdvertising();
     // @TODO: Fix this hack in QT Bluetooth lib
     leController->switchRole();
-
     leController->discoverServices();
 }
