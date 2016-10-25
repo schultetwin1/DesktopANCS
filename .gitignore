@@ -1,0 +1,11 @@
+.qmake.stash
+DesktopANCS
+DesktopANCS.pro.user
+ancs.o
+ancsnotification.o
+ancsservice.o
+main.o
+moc_ancs.cpp
+moc_ancs.o
+moc_ancsservice.cpp
+moc_ancsservice.o
