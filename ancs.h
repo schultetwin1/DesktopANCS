@@ -13,6 +13,8 @@
 #include <QLowEnergyServiceData>
 #include <QLoggingCategory>
 
+#include <vector>
+
 #include "ancsnotification.h"
 
 const QBluetoothUuid ancsServiceUuid = QBluetoothUuid(QString("{7905F431-B5CE-4E99-A40F-4B1E122D00D0}"));
@@ -39,7 +41,7 @@ public slots:
 private:
     QLowEnergyService* ancsService;
     QLowEnergyController* leController;
-    QVector<ANCSNotification> notifications;
+    std::vector<ANCSNotification> notifications;
 
     void startAdvertising();
 

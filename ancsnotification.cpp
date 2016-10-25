@@ -1,40 +1,46 @@
+#include <QDataStream>
+
 #include "ancsnotification.h"
 
 ANCSNotification::ANCSNotification()
 {
 }
 
-void ANCSNotification::UpdateData(const QByteArray & d)
+void ANCSNotification::UpdateData(const QByteArray & data)
 {
-    QByteArray data(d);
-    Uid = data.mid(1, 4);
-    data.remove(0, 5);
+    QDataStream stream(data);
+    stream.setByteOrder(QDataStream::LittleEndian);
+    uint8_t command;
+    stream >> command;
+    stream >> Uid;
 
-    while (!data.isEmpty())
+    while (!stream.atEnd())
     {
-        uint8_t attrID = data[0];
-        data.remove(0,1);
-        uint16_t attrLength = data[0] | (data[1] << 8);
-        data.remove(0,2);
-        QByteArray attr = data.left(attrLength);
-        data.remove(0, attrLength);
+        uint8_t attrID;
+        uint16_t attrLength;
+        stream >> attrID;
+        stream >> attrLength;
+
+        char* attr = new char[attrLength + 1];
+        attr[attrLength] = '\0';
+        stream.readRawData(attr, attrLength);
 
         switch (attrID)
         {
             case ANCSNotification::NotificationAttributeID::AppIdentifier:
-                AppIdentifier = attr.toStdString().c_str();
+                AppIdentifier = attr;
                 break;
 
             case ANCSNotification::NotificationAttributeID::Title:
-                Title = attr.toStdString().c_str();
+                Title = attr;
                 break;
 
             case ANCSNotification::NotificationAttributeID::Subtitle:
-                Subtitle = attr.toStdString().c_str();
+                Subtitle = attr;
                 break;
 
             case ANCSNotification::NotificationAttributeID::Message:
-                Message = attr.toStdString().c_str();
+                Message = attr;
                 break;
 
             case ANCSNotification::NotificationAttributeID::MessageSize:
@@ -42,22 +48,23 @@ void ANCSNotification::UpdateData(const QByteArray & d)
                 break;
 
             case ANCSNotification::NotificationAttributeID::Date:
-                Date = QDateTime::fromString(attr.toStdString().c_str(), "yyyyMMddTHHmmSS");
+                Date = QDateTime::fromString(attr, "yyyyMMddTHHmmSS");
                 break;
 
             case ANCSNotification::NotificationAttributeID::PositiveActionLabel:
-                PostiveActionLabel = attr.toStdString().c_str();
+                PostiveActionLabel = attr;
                 break;
 
             case ANCSNotification::NotificationAttributeID::NegativeActionLabel:
-                NegativeActionLabel = attr.toStdString().c_str();
+                NegativeActionLabel = attr;
                 break;
         }
+        delete attr;
 
     }
 }
 
-QByteArray ANCSNotification::getUid() const
+uint32_t ANCSNotification::getUid() const
 {
     return Uid;
 }
@@ -67,22 +74,22 @@ uint8_t ANCSNotification::getCategoryID() const
     return CategoryID;
 }
 
-QString ANCSNotification::getAppIdentifier() const
+std::string ANCSNotification::getAppIdentifier() const
 {
     return AppIdentifier;
 }
 
-QString ANCSNotification::getTitle() const
+std::string ANCSNotification::getTitle() const
 {
     return Title;
 }
 
-QString ANCSNotification::getSubtitle() const
+std::string ANCSNotification::getSubtitle() const
 {
     return Subtitle;
 }
 
-QString ANCSNotification::getMessage() const
+std::string ANCSNotification::getMessage() const
 {
     return Message;
 }
@@ -92,12 +99,12 @@ QDateTime ANCSNotification::getDate() const
     return Date;
 }
 
-QString ANCSNotification::getPostiveActionLabel() const
+std::string ANCSNotification::getPostiveActionLabel() const
 {
     return PostiveActionLabel;
 }
 
-QString ANCSNotification::getNegativeActionLabel() const
+std::string ANCSNotification::getNegativeActionLabel() const
 {
     return NegativeActionLabel;
 }

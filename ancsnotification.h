@@ -68,26 +68,26 @@ public:
 
     void UpdateData(const QByteArray&);
 
-    QByteArray getUid() const;
+    uint32_t getUid() const;
     uint8_t getCategoryID() const;
-    QString getAppIdentifier() const;
-    QString getTitle() const;
-    QString getSubtitle() const;
-    QString getMessage() const;
-    QDateTime getDate() const;
-    QString getPostiveActionLabel() const;
-    QString getNegativeActionLabel() const;
+    std::string getAppIdentifier() const;
+    std::string getTitle() const;
+    std::string getSubtitle() const;
+    std::string getMessage() const;
+    QDateTime  getDate() const;
+    std::string getPostiveActionLabel() const;
+    std::string getNegativeActionLabel() const;
 
 private:
-    QByteArray Uid;
-    uint8_t    CategoryID;
-    QString    AppIdentifier;
-    QString    Title;
-    QString    Subtitle;
-    QString    Message;
-    QDateTime  Date;
-    QString    PostiveActionLabel;
-    QString    NegativeActionLabel;
+    uint32_t    Uid;
+    uint8_t     CategoryID;
+    std::string AppIdentifier;
+    std::string Title;
+    std::string Subtitle;
+    std::string Message;
+    QDateTime   Date;
+    std::string PostiveActionLabel;
+    std::string NegativeActionLabel;
 };
 
 #endif // ANCSNOTIFICATION_H

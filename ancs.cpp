@@ -1,35 +1,57 @@
+#include <QDataStream>
+
 #include "ancs.h"
 
 void ANCS::onANCSCharacteristicChanged(QLowEnergyCharacteristic characteristic, QByteArray data) {
-    if (!ancsService) return;
-
     Q_ASSERT(leController);
 
     if (characteristic.uuid() == ancsNotificationSourceCharUUid)
     {
-        QByteArray uid = data.right(4);
+        QDataStream dataStream(&data, QIODevice::ReadOnly);
+        dataStream.setByteOrder(QDataStream::LittleEndian);
+        uint8_t eventId, flags, categoryId, categoryCount;
+        uint32_t uid;
+        dataStream >> eventId;
+        dataStream >> flags;
+        dataStream >> categoryId;
+        dataStream >> categoryCount;
+        dataStream >> uid;
 
-        QByteArray dataRequest;
-        dataRequest.append(ANCSNotification::CommandID::GetNotificationAttributes);
-        dataRequest.append(uid);
-        dataRequest.append(ANCSNotification::NotificationAttributeID::AppIdentifier);
-        dataRequest.append(ANCSNotification::NotificationAttributeID::Title);
-        dataRequest.append(2, 0xFF); // Max Size (0xFFFF)
-        dataRequest.append(ANCSNotification::NotificationAttributeID::Subtitle);
-        dataRequest.append(2, 0xFF); // Max Size (0xFFFF)
-        dataRequest.append(ANCSNotification::NotificationAttributeID::Message);
-        dataRequest.append(2, 0xFF); // Max Size (0xFFFF)
-        dataRequest.append(ANCSNotification::NotificationAttributeID::Date);
-        dataRequest.append(ANCSNotification::NotificationAttributeID::PositiveActionLabel);
-        dataRequest.append(ANCSNotification::NotificationAttributeID::NegativeActionLabel);
+        if (eventId == ANCSNotification::EventID::NotificationAdded ||
+            eventId == ANCSNotification::EventID::NotificationModified)
+        {
+            const uint16_t MAX_SIZE = 0xFFFF;
+            QByteArray buffer;
+            QDataStream request(&buffer, QIODevice::WriteOnly);
+            request.setByteOrder(QDataStream::LittleEndian);
 
-        ancsService->writeCharacteristic(ancsService->characteristic(ancsControlPointCharUUid), dataRequest);
+            request << ANCSNotification::CommandID::GetNotificationAttributes;
+            request << uid;
+            request << ANCSNotification::NotificationAttributeID::AppIdentifier;
+            request << ANCSNotification::NotificationAttributeID::Title;
+            request << MAX_SIZE;
+            request << ANCSNotification::NotificationAttributeID::Subtitle;
+            request << MAX_SIZE;
+            request << ANCSNotification::NotificationAttributeID::Message;
+            request << MAX_SIZE;
+            request << ANCSNotification::NotificationAttributeID::Date;
+            request << ANCSNotification::NotificationAttributeID::PositiveActionLabel;
+            request << ANCSNotification::NotificationAttributeID::NegativeActionLabel;
+
+            ancsService->writeCharacteristic(ancsService->characteristic(ancsControlPointCharUUid), buffer);
+        }
+        else
+        {
+            std::remove_if(notifications.begin(), notifications.end(), [&uid](ANCSNotification& n) {
+                return n.getUid() == uid;
+            });
+        }
     }
     else if (characteristic.uuid() == ancsDataSourceCharUUid)
     {
         ANCSNotification notification;
         notification.UpdateData(data);
-        notifications.append(notification);
+        notifications.push_back(notification);
         emit newNotification(notifications[notifications.size() - 1]);
     }
 }
