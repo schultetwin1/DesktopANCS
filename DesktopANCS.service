@@ -1,0 +1,11 @@
+[Unit]
+Description=DesktopANCS
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/DesktopANCS
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target
