@@ -41,7 +41,14 @@ output what your computer's name is. When the name appears click to pair with
 it. Once its connected any call or text notifications should appear on your
 computer.
 
-Things to do:
+If you want this to run all the time you can install a user systemd service using
+```bash
+./install.sh
+```
+Please look through the script first and modified anything you don't want to
+happen. Its a super simple script.
+
+## Todo
 * Let the user configure which apps they want to come through
 * Deal with modified / read notifications
 * Show missed calls vs current calls
