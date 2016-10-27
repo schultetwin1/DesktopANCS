@@ -17,6 +17,12 @@ Energy service on your iPhone and libnotify on your linux machine.
    [found here](https://github.com/schultetwin1/qtconnectivity/)
    in the roleswitch branch. You will need to compile and install this library
 
+## Building
+As long as you have qt 5.7 installed you should be able to just run
+```bash
+make
+```
+
 ## Usage
 After cloning and compiling DesktopANCS please allow the binary to change the
 advertising status of your bluetooth adapter using
