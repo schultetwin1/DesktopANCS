@@ -11,17 +11,19 @@ your linux box without any app on the phone.  It uses the ANCS Bluetooth Low
 Energy service on your iPhone and libnotify on your linux machine. 
 
 ## Requirements
-0) Linux machine with ble controller
-1) Qt 5.7
-2) My modifications to the QtConnectivity library
-(found here) https://github.com/schultetwin1/qtconnectivity/
-in the roleswitch branch
-Note: You will need to compile and install this library
+1. Linux machine with ble host
+2. Qt 5.7
+3. My modifications to the QtConnectivity library
+   [found here](https://github.com/schultetwin1/qtconnectivity/)
+   in the roleswitch branch. You will need to compile and install this library
 
 ## Usage
 After cloning and compiling DesktopANCS please allow the binary to change the
-advertising status of your bluetooth adapte using
-$> sudo setcap cap_net_raw+eip DesktopANCS
+advertising status of your bluetooth adapter using
+
+```bash
+sudo setcap cap_net_raw+eip DesktopANCS
+```
 
 Then run the ./DesktopANCS
 
