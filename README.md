@@ -25,7 +25,10 @@ advertising status of your bluetooth adapter using
 sudo setcap cap_net_raw+eip DesktopANCS
 ```
 
-Then run the ./DesktopANCS
+Then run
+```bash
+./DesktopANCS
+```
 
 On your iPhone go to Settings -> Bluetooth. DesktopANCS should tell you in its
 output what your computer's name is. When the name appears click to pair with
