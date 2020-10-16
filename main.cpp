@@ -41,6 +41,7 @@ int main(int argc, char *argv[])
     QObject::connect(&ancs, &ANCS::newNotification, [&](const ANCSNotification& notification) {
         if (notification.getAppIdentifier().find("SMS") != std::string::npos)
         {
+		QTextStream(stderr) << "Something happenend"<<Qt::endl;
             QStringList args;
             args.append(notification.getTitle().c_str());
             args.append(notification.getMessage().c_str());
@@ -50,6 +51,7 @@ int main(int argc, char *argv[])
 
         if (notification.getAppIdentifier().find("mobilephone") != std::string::npos)
         {
+		QTextStream(stderr) << "Something happenend"<<Qt::endl;
             QStringList args;
             args.append(notification.getTitle().c_str());
             args.append("Incoming call...");
